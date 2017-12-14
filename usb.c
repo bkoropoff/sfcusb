@@ -441,7 +441,7 @@ usb_init(void)
 
     /* PLL configuration */
 
-    /* Set USB post-scaler to divide by 2 (24 MHz for low-speed USB) */
+    /* Set PLL pre-scaler to 1/2 to get 8 MHz from 16 MHz clock */
     SET(PLLCSR, PINDIV);
     /* Set output frequency to 48 MHz */
     PLLFRQ = (1 << PDIV2);

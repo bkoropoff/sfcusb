@@ -89,8 +89,6 @@ PACKED struct hid_descriptor {
     struct hid_sub_descriptor descs[0];
 };
 
-#define REQUEST_GET_REPORT 0x01
-
 #define HRD_SIZE_0 0
 #define HRD_SIZE_1 1
 #define HRD_SIZE_2 2
@@ -192,6 +190,7 @@ PACKED struct hid_descriptor {
 #define REQ_GET_DESCRIPTOR 0x6
 #define REQ_SET_CONFIGURATION 0x9
 #define REQ_SET_IDLE 0xa
+#define REQ_GET_REPORT 0x01
 
 #define REQ_TYPE_HOST_TO_DEVICE (0 << 7)
 #define REQ_TYPE_DEVICE_TO_HOST (1 << 7)
@@ -359,6 +358,46 @@ static const struct PACKED
         .interval = 8 /* ~120 times a second */
     }
 };
+
+static uint16_t
+get_report(void)
+{
+    uint16_t state = sfc_read();
+    uint16_t horiz = state & ((1 << SFC_LEFT) | (1 << SFC_RIGHT));
+    uint16_t vert = state & ((1 << SFC_UP) | (1 << SFC_DOWN));
+    uint16_t report = 0;
+
+    switch (horiz)
+    {
+    case (1 << SFC_LEFT):
+        report |= 0xF;
+        break;
+    case (1 << SFC_RIGHT):
+        report |= 0x1;
+        break;
+    }
+
+    switch (vert)
+    {
+    case (1 << SFC_UP):
+        report |= 0xF << 4;
+        break;
+    case (1 << SFC_DOWN):
+        report |= 0x1 << 4;
+        break;
+    }
+
+    report |= (TEST(state, SFC_B) ? 1 : 0) << 8;
+    report |= (TEST(state, SFC_Y) ? 1 : 0) << 9;
+    report |= (TEST(state, SFC_SELECT) ? 1 : 0) << 10;
+    report |= (TEST(state, SFC_START) ? 1 : 0) << 11;
+    report |= (TEST(state, SFC_A) ? 1 : 0) << 12;
+    report |= (TEST(state, SFC_X) ? 1 : 0) << 13;
+    report |= (TEST(state, SFC_L) ? 1 : 0) << 14;
+    report |= (TEST(state, SFC_R) ? 1 : 0) << 15;
+
+    return report;
+}
 
 static void
 ep0_init(void)
@@ -640,6 +679,16 @@ usb_handle_set_idle(struct usb_request* req)
 }
 
 static void
+usb_handle_get_report(struct usb_request *req)
+{
+    uint16_t report = get_report();
+
+    usb_write_control(&report, sizeof(report));
+    usb_wait_out();
+    usb_ack_out();
+}
+
+static void
 usb_handle_setup(void)
 {
     static struct usb_request req;
@@ -664,6 +713,9 @@ usb_handle_setup(void)
     case REQ_SET_IDLE:
         usb_handle_set_idle(&req);
         break;
+    case REQ_GET_REPORT:
+        usb_handle_get_report(&req);
+        break;
     default:
         panic(req.request);
     }
@@ -672,39 +724,7 @@ usb_handle_setup(void)
 static void
 usb_handle_interrupt(void)
 {
-    uint16_t state = sfc_read();
-    uint16_t horiz = state & ((1 << SFC_LEFT) | (1 << SFC_RIGHT));
-    uint16_t vert = state & ((1 << SFC_UP) | (1 << SFC_DOWN));
-    uint16_t report = 0;
-
-    switch (horiz)
-    {
-    case (1 << SFC_LEFT):
-        report |= 0xF;
-        break;
-    case (1 << SFC_RIGHT):
-        report |= 0x1;
-        break;
-    }
-
-    switch (vert)
-    {
-    case (1 << SFC_UP):
-        report |= 0xF << 4;
-        break;
-    case (1 << SFC_DOWN):
-        report |= 0x1 << 4;
-        break;
-    }
-
-    report |= (TEST(state, SFC_B) ? 1 : 0) << 8;
-    report |= (TEST(state, SFC_Y) ? 1 : 0) << 9;
-    report |= (TEST(state, SFC_SELECT) ? 1 : 0) << 10;
-    report |= (TEST(state, SFC_START) ? 1 : 0) << 11;
-    report |= (TEST(state, SFC_A) ? 1 : 0) << 12;
-    report |= (TEST(state, SFC_X) ? 1 : 0) << 13;
-    report |= (TEST(state, SFC_L) ? 1 : 0) << 14;
-    report |= (TEST(state, SFC_R) ? 1 : 0) << 15;
+    uint16_t report = get_report();
 
     usb_write_in(&report, sizeof(report));
 }

@@ -1,7 +1,11 @@
 #include "includes.h"
 #include "util.h"
 #include "usb.h"
+#if defined(CONFIG_SFC)
 #include "sfc.h"
+#elif defined(CONFIG_SS)
+#include "ss.h"
+#endif
 
 /* Magic address and value to cause SparkFun bootloader to stay in serial mode */
 #define SPARK_MAGIC_ADDR 0x0800
@@ -9,16 +13,15 @@
 
 #define BOOTLOADER_RESET 0x3800
 
-
 static void
 setup(void)
 {
     uint16_t state;
 
-    sfc_init();
+    controller_init();
 
-    state = sfc_read();
-    if ((state & SFC_BOOTLOADER) == SFC_BOOTLOADER)
+    state = controller_read();
+    if ((state & CTLR_BOOTLOADER) == CTLR_BOOTLOADER)
     {
         *((uint8_t*) SPARK_MAGIC_ADDR) = SPARK_MAGIC_VALUE;
         goto *(void*) BOOTLOADER_RESET;

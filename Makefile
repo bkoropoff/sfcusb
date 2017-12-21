@@ -1,8 +1,10 @@
 CPU_FLAGS := -DF_CPU=16000000UL -mmcu=atmega32u4
-CFLAGS := -Wall -Werror $(CPU_FLAGS) -Os
+CONFIG := sfc
+CFLAGS := -Wall -Werror $(CPU_FLAGS) -Os -DCONFIG_`echo $(CONFIG) | tr a-z A-Z`
 
-OBJECTS = main.o usb.o util.o sfc.o
-HEADERS = includes.h sfc.h usb.h util.h
+OBJECTS = main.o usb.o util.o $(CONFIG).o
+HEADERS = includes.h sfc.h ss.h usbconf.h usb.h util.h
+
 
 all: sfcusb.hex
 
@@ -18,7 +20,9 @@ sfcusb.hex: sfcusb
 sfcusb: $(OBJECTS)
 	avr-gcc $(CFLAGS) -o $@ $(OBJECTS)
 
-.c.o: $(HEADERS)
+.c.o:
 	avr-gcc $(CFLAGS) -c -o $@ $<
+
+$(OBJECTS): $(HEADERS)
 
 .PHONY: upload clean

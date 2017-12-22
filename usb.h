@@ -158,15 +158,6 @@ PACKED struct hid_descriptor {
 #define HRD_USAGE_Y 0x31
 
 #define HRD_USAGE_PAGE_BUTTON 0x09
-#define HRD_USAGE_BUTTON_1 0x01
-#define HRD_USAGE_BUTTON_2 0x02
-#define HRD_USAGE_BUTTON_3 0x03
-#define HRD_USAGE_BUTTON_4 0x04
-#define HRD_USAGE_BUTTON_5 0x05
-#define HRD_USAGE_BUTTON_6 0x06
-#define HRD_USAGE_BUTTON_7 0x07
-#define HRD_USAGE_BUTTON_8 0x08
-#define HRD_USAGE_BUTTON_9 0x09
 
 #define HRD_ITEM_HEADER(Size, Type, Tag) ((Size) | ((Type) << 2) | ((Tag) << 4))
 #define HRD_ITEM_0(Type, Tag) HRD_ITEM_HEADER(0, Type, Tag)

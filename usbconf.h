@@ -79,15 +79,11 @@ static const uint8_t usb_report_desc[] =
     HRD_LOGICAL_MIN_1(0),
     HRD_LOGICAL_MAX_1(1),
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_BUTTON),
-    HRD_USAGE_MIN_1(HRD_USAGE_BUTTON_1),
-    HRD_USAGE_MAX_1(HRD_USAGE_BUTTON_8),
+    HRD_USAGE_MIN_1(1),
+    HRD_USAGE_MAX_1(12),
     HRD_REPORT_SIZE_1(1),
-    HRD_REPORT_COUNT_1(8),
+    HRD_REPORT_COUNT_1(12),
     HRD_INPUT_1(HRD_BIT_VARIABLE),
-    /* Pad to a multiple of 8 bytes, or Windows won't accept device */
-    HRD_REPORT_SIZE_1(4),
-    HRD_REPORT_COUNT_1(1),
-    HRD_INPUT_1(HRD_BIT_CONSTANT | HRD_BIT_VARIABLE),
     HRD_END_COLLECTION
 };
 #elif defined(CONFIG_SS)
@@ -109,13 +105,13 @@ static const uint8_t usb_report_desc[] =
     HRD_LOGICAL_MIN_1(0),
     HRD_LOGICAL_MAX_1(1),
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_BUTTON),
-    HRD_USAGE_MIN_1(HRD_USAGE_BUTTON_1),
-    HRD_USAGE_MAX_1(HRD_USAGE_BUTTON_9),
+    HRD_USAGE_MIN_1(1),
+    HRD_USAGE_MAX_1(11),
     HRD_REPORT_SIZE_1(1),
-    HRD_REPORT_COUNT_1(9),
+    HRD_REPORT_COUNT_1(11),
     HRD_INPUT_1(HRD_BIT_VARIABLE),
     /* Pad to a multiple of 8 bytes, or Windows won't accept device */
-    HRD_REPORT_SIZE_1(3),
+    HRD_REPORT_SIZE_1(1),
     HRD_REPORT_COUNT_1(1),
     HRD_INPUT_1(HRD_BIT_CONSTANT | HRD_BIT_VARIABLE),
     HRD_END_COLLECTION
@@ -153,12 +149,48 @@ usb_report(void* out)
 
     report |= (TEST(state, CTLR_B) ? 1 : 0) << 4;
     report |= (TEST(state, CTLR_Y) ? 1 : 0) << 5;
-    report |= (TEST(state, CTLR_SELECT) ? 1 : 0) << 6;
-    report |= (TEST(state, CTLR_START) ? 1 : 0) << 7;
     report |= (TEST(state, CTLR_A) ? 1 : 0) << 8;
     report |= (TEST(state, CTLR_X) ? 1 : 0) << 9;
     report |= (TEST(state, CTLR_L) ? 1 : 0) << 10;
     report |= (TEST(state, CTLR_R) ? 1 : 0) << 11;
+
+    if (TEST(state, CTLR_SELECT))
+    {
+        if (TEST(state, CTLR_UP))
+        {
+            /* Virtual button: up + select */
+            report |= 1 << 12;
+        }
+        else if (TEST(state, CTLR_DOWN))
+        {
+            /* Virtual button: down + select */
+            report |= 1 << 13;
+        }
+        else
+        {
+            /* Select */
+            report |= 1 << 6;
+        }
+    }
+
+    if (TEST(state, CTLR_START))
+    {
+        if (TEST(state, CTLR_UP))
+        {
+            /* Virtual button: up + start */
+            report |= 1 << 14;
+        }
+        else if (TEST(state, CTLR_DOWN))
+        {
+            /* Virtual button: down + start */
+            report |= 1 << 15;
+        }
+        else
+        {
+            /* Start */
+            report |= 1 << 7;
+        }
+    }
 
     memcpy(out, &report, sizeof(report));
     return sizeof(report);
@@ -199,8 +231,24 @@ usb_report(void* out)
     report |= (TEST(state, CTLR_B) ? 1 : 0) << 8;
     report |= (TEST(state, CTLR_C) ? 1 : 0) << 9;
     report |= (TEST(state, CTLR_A) ? 1 : 0) << 10;
-    report |= (TEST(state, CTLR_START) ? 1 : 0) << 11;
     report |= (TEST(state, CTLR_L) ? 1 : 0) << 12;
+
+    if (TEST(state, CTLR_START))
+    {
+        /* Virtual buttons: up/down + start */
+        if (TEST(state, CTLR_UP))
+        {
+            report |= 1 << 13;
+        }
+        else if (TEST(state, CTLR_DOWN))
+        {
+            report |= 1 << 14;
+        }
+        else
+        {
+            report |= 1 << 11;
+        }
+    }
 
     memcpy(out, &report, sizeof(report));
     return sizeof(report);

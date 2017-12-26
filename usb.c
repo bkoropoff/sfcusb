@@ -40,7 +40,7 @@ static const struct PACKED
         .config_value = 1,
         .config_index = 0,
         .attributes = 1 << 7,
-        .max_power = 150 /* 300mA */
+        .max_power = USB_MAX_POWER
     },
     .interface =
     {

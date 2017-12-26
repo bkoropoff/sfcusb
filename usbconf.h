@@ -15,10 +15,12 @@
 /* Vendor/ID of board I used for SFC controller */
 #define USB_VENDOR_ID 0x1b4f
 #define USB_PRODUCT_ID 0x9205
+#define USB_MAX_POWER 20
 #elif defined(CONFIG_SS)
 /* Vendor/ID of board I used for SS controller */
 #define USB_VENDOR_ID 0x2341
 #define USB_PRODUCT_ID 0x0037
+#define USB_MAX_POWER 15
 #endif
 
 static const struct string_descriptor lang_desc =

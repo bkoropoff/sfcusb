@@ -5,6 +5,8 @@
 #include "sfc.h"
 #elif defined(CONFIG_SS)
 #include "ss.h"
+#elif defined(CONFIG_ARCADE)
+#include "arcade.h"
 #endif
 
 /* Magic address and value to cause SparkFun bootloader to stay in serial mode */
@@ -37,8 +39,12 @@ main(void)
 {
     setup();
 
+#ifdef CONFIG_ARCADE
+    controller_poll();
+#else
     for (;;)
     {
         SLEEP();
     }
+#endif
 }

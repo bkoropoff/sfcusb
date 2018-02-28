@@ -9,32 +9,34 @@ controller_init(void)
        closed */
 
     /* Configure joystick pins */
-    CLEAR(DDRD, DDD1);
-    SET(PORTD, PORTD1);
     CLEAR(DDRD, DDD0);
     SET(PORTD, PORTD0);
-    CLEAR(DDRD, DDD4);
-    SET(PORTD, PORTD4);
-    CLEAR(DDRC, DDC6);
-    SET(PORTC, PORTC6);
+    CLEAR(DDRD, DDD1);
+    SET(PORTD, PORTD1);
+    CLEAR(DDRD, DDD2);
+    SET(PORTD, PORTD2);
+    CLEAR(DDRD, DDD3);
+    SET(PORTD, PORTD3);
 
     /* Configure button pins */
-    CLEAR(DDRF, DDF4);
-    SET(PORTF, PORTF4);
-    CLEAR(DDRF, DDF5);
-    SET(PORTF, PORTF5);
-    CLEAR(DDRF, DDF6);
-    SET(PORTF, PORTF6);
-    CLEAR(DDRF, DDF7);
-    SET(PORTF, PORTF7);
-    CLEAR(DDRB, DDB1);
-    SET(PORTB, PORTB1);
-    CLEAR(DDRB, DDB3);
-    SET(PORTB, PORTB3);
-    CLEAR(DDRB, DDB2);
-    SET(PORTB, PORTB2);
+    CLEAR(DDRC, DDC7);
+    SET(PORTC, PORTC7);
+    CLEAR(DDRC, DDC6);
+    SET(PORTC, PORTC6);
+    CLEAR(DDRB, DDB6);
+    SET(PORTB, PORTC6);
     CLEAR(DDRB, DDB6);
     SET(PORTB, PORTB6);
+    CLEAR(DDRB, DDB5);
+    SET(PORTB, PORTB5);
+    CLEAR(DDRB, DDB4);
+    SET(PORTB, PORTB4);
+    CLEAR(DDRD, DDD7);
+    SET(PORTD, PORTD7);
+    CLEAR(DDRD, DDD6);
+    SET(PORTD, PORTD6);
+    CLEAR(DDRD, DDD4);
+    SET(PORTD, PORTD4);
 }
 
 uint16_t
@@ -43,21 +45,20 @@ controller_read(void)
     uint16_t raw = 0;
     uint8_t d = PIND;
     uint8_t c = PINC;
-    uint8_t f = PINF;
     uint8_t b = PINB;
 
-    raw |= TEST(d, PIND1) ? (1 << CTLR_LEFT) : 0;
-    raw |= TEST(d, PIND0) ? (1 << CTLR_RIGHT) : 0;
-    raw |= TEST(d, PIND4) ? (1 << CTLR_DOWN) : 0;
-    raw |= TEST(c, PINC6) ? (1 << CTLR_UP) : 0;
-    raw |= TEST(f, 4) ? (1 << CTLR_COIN) : 0;
-    raw |= TEST(f, 5) ? (1 << CTLR_START) : 0;
-    raw |= TEST(f, 6) ? (1 << CTLR_A) : 0;
-    raw |= TEST(f, 7) ? (1 << CTLR_B) : 0;
-    raw |= TEST(b, 1) ? (1 << CTLR_C) : 0;
-    raw |= TEST(b, 3) ? (1 << CTLR_D) : 0;
-    raw |= TEST(b, 2) ? (1 << CTLR_E) : 0;
-    raw |= TEST(b, 6) ? (1 << CTLR_F) : 0;
+    raw |= TEST(d, 0) ? (1 << CTLR_UP) : 0;
+    raw |= TEST(d, 1) ? (1 << CTLR_DOWN) : 0;
+    raw |= TEST(d, 2) ? (1 << CTLR_RIGHT) : 0;
+    raw |= TEST(d, 3) ? (1 << CTLR_LEFT) : 0;
+    raw |= TEST(c, 7) ? (1 << CTLR_COIN) : 0;
+    raw |= TEST(c, 6) ? (1 << CTLR_START) : 0;
+    raw |= TEST(b, 6) ? (1 << CTLR_A) : 0;
+    raw |= TEST(b, 5) ? (1 << CTLR_B) : 0;
+    raw |= TEST(b, 4) ? (1 << CTLR_C) : 0;
+    raw |= TEST(d, 7) ? (1 << CTLR_D) : 0;
+    raw |= TEST(d, 6) ? (1 << CTLR_E) : 0;
+    raw |= TEST(d, 4) ? (1 << CTLR_F) : 0;
 
     return ~raw;
 }

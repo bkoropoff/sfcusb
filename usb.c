@@ -74,7 +74,7 @@ static const struct PACKED
         .address = ENDPOINT_ADDR(1, true),
         .attributes = ENDPOINT_ATTR(ENDPOINT_TYPE_INTERRUPT, 0, 0),
         .max_packet_size = 8,
-        .interval = 8 /* ~120 times a second */
+        .interval = 1 /* 1000 times a second - maximum */
     }
 };
 

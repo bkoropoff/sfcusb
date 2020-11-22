@@ -74,7 +74,7 @@ static const struct PACKED
         .address = ENDPOINT_ADDR(1, true),
         .attributes = ENDPOINT_ATTR(ENDPOINT_TYPE_INTERRUPT, 0, 0),
         .max_packet_size = 8,
-        .interval = 1 /* 1000 times a second - maximum */
+        .interval = 4 /* 4ms polling interval */
     }
 };
 
@@ -122,8 +122,8 @@ usb_init(void)
 
     /* Set PLL pre-scaler to 1/2 to get 8 MHz from 16 MHz clock */
     SET(PLLCSR, PINDIV);
-    /* Set output frequency to 48 MHz */
-    PLLFRQ = (1 << PDIV2);
+    /* Set PLL frequency to 96 MHz, divided by 2 for USB (48 MHz) */
+    PLLFRQ = (1 << PDIV1) | (1 << PDIV3) | (1 << PLLUSB);
     /* Enable PLL */
     SET(PLLCSR, PLLE);
     /* Busy-wait for PLL to lock */
@@ -133,8 +133,8 @@ usb_init(void)
 
     /* Turn on USB */
     SET(USBCON, USBE);
-    /* Set low-speed mode */
-    SET(UDCON, LSM);
+    /* Set full-speed mode */
+    CLEAR(UDCON, LSM);
     /* Unfreeze clock */
     CLEAR(USBCON, FRZCLK);
     /* Configure endpoints */

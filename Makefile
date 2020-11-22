@@ -3,7 +3,7 @@ CONFIG := sfc
 CFLAGS := -Wall -Werror $(CPU_FLAGS) -Os -DCONFIG_`echo $(CONFIG) | tr a-z A-Z`
 
 OBJECTS = main.o usb.o util.o $(CONFIG).o
-HEADERS = includes.h sfc.h ss.h usbconf.h usb.h util.h
+HEADERS = includes.h config.h sfc.h ss.h usbconf.h usb.h util.h
 
 
 all: sfcusb.hex

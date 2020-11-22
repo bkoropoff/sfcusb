@@ -74,7 +74,14 @@ static const struct string_descriptor* usb_strings[] =
     [USB_PROD_INDEX] = &prod_desc,
 };
 
+#define PADDING(c) (8 - ((c) + 4) % 8)
+
 #if defined(CONFIG_SFC)
+#ifdef CONFIG_VIRTUAL_BUTTONS
+#define BUTTON_COUNT 12
+#else
+#define BUTTON_COUNT 10
+#endif
 static const uint8_t usb_report_desc[] =
 {
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_GENERIC_DESKTOP),
@@ -96,13 +103,24 @@ static const uint8_t usb_report_desc[] =
     HRD_LOGICAL_MAX_1(1),
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_BUTTON),
     HRD_USAGE_MIN_1(1),
-    HRD_USAGE_MAX_1(12),
+    HRD_USAGE_MAX_1(BUTTON_COUNT),
     HRD_REPORT_SIZE_1(1),
-    HRD_REPORT_COUNT_1(12),
+    HRD_REPORT_COUNT_1(BUTTON_COUNT),
     HRD_INPUT_1(HRD_BIT_VARIABLE),
+#if PADDING(BUTTON_COUNT)
+    /* Pad to a multiple of 8 bits, or Windows won't accept device */
+    HRD_REPORT_SIZE_1(1),
+    HRD_REPORT_COUNT_1(PADDING(BUTTON_COUNT)),
+    HRD_INPUT_1(HRD_BIT_CONSTANT | HRD_BIT_VARIABLE),
+#endif
     HRD_END_COLLECTION
 };
 #elif defined(CONFIG_SS)
+#ifdef CONFIG_VIRTUAL_BUTTONS
+#define BUTTON_COUNT 11
+#else
+#define BUTTON_COUNT 9
+#endif
 static const uint8_t usb_report_desc[] =
 {
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_GENERIC_DESKTOP),
@@ -122,17 +140,24 @@ static const uint8_t usb_report_desc[] =
     HRD_LOGICAL_MAX_1(1),
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_BUTTON),
     HRD_USAGE_MIN_1(1),
-    HRD_USAGE_MAX_1(11),
+    HRD_USAGE_MAX_1(BUTTON_COUNT),
     HRD_REPORT_SIZE_1(1),
-    HRD_REPORT_COUNT_1(11),
+    HRD_REPORT_COUNT_1(BUTTON_COUNT),
     HRD_INPUT_1(HRD_BIT_VARIABLE),
-    /* Pad to a multiple of 8 bytes, or Windows won't accept device */
+#if PADDING(BUTTON_COUNT)
+    /* Pad to a multiple of 8 bits, or Windows won't accept device */
     HRD_REPORT_SIZE_1(1),
-    HRD_REPORT_COUNT_1(1),
+    HRD_REPORT_COUNT_1(PADDING(BUTTON_COUNT)),
     HRD_INPUT_1(HRD_BIT_CONSTANT | HRD_BIT_VARIABLE),
+#endif
     HRD_END_COLLECTION
 };
 #elif defined(CONFIG_ARCADE)
+#ifdef CONFIG_VIRTUAL_BUTTONS
+#define BUTTON_COUNT 12
+#else
+#define BUTTON_COUNT 8
+#endif
 static const uint8_t usb_report_desc[] =
 {
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_GENERIC_DESKTOP),
@@ -152,10 +177,16 @@ static const uint8_t usb_report_desc[] =
     HRD_LOGICAL_MAX_1(1),
     HRD_USAGE_PAGE_1(HRD_USAGE_PAGE_BUTTON),
     HRD_USAGE_MIN_1(1),
-    HRD_USAGE_MAX_1(12),
+    HRD_USAGE_MAX_1(BUTTON_COUNT),
     HRD_REPORT_SIZE_1(1),
-    HRD_REPORT_COUNT_1(12),
+    HRD_REPORT_COUNT_1(BUTTON_COUNT),
     HRD_INPUT_1(HRD_BIT_VARIABLE),
+#if PADDING(BUTTON_COUNT)
+    /* Pad to a multiple of 8 bits, or Windows won't accept device */
+    HRD_REPORT_SIZE_1(1),
+    HRD_REPORT_COUNT_1(PADDING(BUTTON_COUNT)),
+    HRD_INPUT_1(HRD_BIT_CONSTANT | HRD_BIT_VARIABLE),
+#endif
     HRD_END_COLLECTION
 };
 #endif
@@ -198,6 +229,7 @@ usb_report(void* out)
 
     if (TEST(state, CTLR_SELECT))
     {
+#ifdef CONFIG_VIRTUAL_BUTTONS
         if (TEST(state, CTLR_UP))
         {
             /* Virtual button: up + select */
@@ -209,6 +241,7 @@ usb_report(void* out)
             report |= 1 << 13;
         }
         else
+#endif
         {
             /* Select */
             report |= 1 << 6;
@@ -217,6 +250,7 @@ usb_report(void* out)
 
     if (TEST(state, CTLR_START))
     {
+#ifdef CONFIG_VIRTUAL_BUTTONS
         if (TEST(state, CTLR_UP))
         {
             /* Virtual button: up + start */
@@ -228,6 +262,7 @@ usb_report(void* out)
             report |= 1 << 15;
         }
         else
+#endif
         {
             /* Start */
             report |= 1 << 7;
@@ -277,6 +312,7 @@ usb_report(void* out)
 
     if (TEST(state, CTLR_START))
     {
+#ifdef CONFIG_VIRTUAL_BUTTONS
         /* Virtual buttons: up/down + start */
         if (TEST(state, CTLR_UP))
         {
@@ -287,6 +323,7 @@ usb_report(void* out)
             report |= 1 << 14;
         }
         else
+#endif
         {
             report |= 1 << 11;
         }
@@ -326,6 +363,7 @@ usb_report(void* out)
 
     if (TEST(state, CTLR_COIN))
     {
+#ifdef CONFIG_VIRTUAL_BUTTONS
         if (TEST(state, CTLR_UP))
         {
             /* Virtual button: up + coint */
@@ -337,6 +375,7 @@ usb_report(void* out)
             report |= 1 << 13;
         }
         else
+#endif
         {
             /* Coin */
             report |= 1 << 4;
@@ -345,6 +384,7 @@ usb_report(void* out)
 
     if (TEST(state, CTLR_START))
     {
+#ifdef CONFIG_VIRTUAL_BUTTONS
         if (TEST(state, CTLR_UP))
         {
             /* Virtual button: up + start */
@@ -356,6 +396,7 @@ usb_report(void* out)
             report |= 1 << 15;
         }
         else
+#endif
         {
             /* Start */
             report |= 1 << 5;

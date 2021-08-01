@@ -74,7 +74,7 @@ static const struct string_descriptor* usb_strings[] =
     [USB_PROD_INDEX] = &prod_desc,
 };
 
-#define PADDING(c) (8 - ((c) + 4) % 8)
+#define PADDING(c) ((8 - ((c) + 4) % 8) % 8)
 
 #if defined(CONFIG_SFC)
 #ifdef CONFIG_VIRTUAL_BUTTONS
